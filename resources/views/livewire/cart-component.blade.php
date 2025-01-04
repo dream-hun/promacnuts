@@ -21,7 +21,7 @@
                                         <td class="py-4">
                                             <div class="flex items-center">
                                                 <img class="h-16 w-16 mr-4 object-contain rounded-full"
-                                                    src="{{ $item['image_url'] ?? asset('/images/No-image.png') }}"
+                                                    src="storage/{{ $item['image_url'] ?? asset('assests/no-image.webp') }}"
                                                     alt="{{ $item['name'] }}">
                                                 <span class="font-semibold">{{ $item['name'] }}</span>
                                             </div>

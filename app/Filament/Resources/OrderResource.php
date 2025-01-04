@@ -54,15 +54,14 @@ class OrderResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('customer_email')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('customer_phone')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('customer_address')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('customer_note')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('status')
+                    ->badge()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

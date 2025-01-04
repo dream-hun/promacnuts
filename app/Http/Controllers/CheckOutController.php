@@ -9,34 +9,47 @@ use Darryldecode\Cart\Facades\CartFacade as Cart;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CheckOutController extends Controller
 {
     public function index()
     {
-        $cartItems = Cart::getContent();
-        $cartItemsWithDetails = $cartItems->map(function ($item) {
-            $product = Product::with('media')->find($item->id);
-            if ($product) {
+        if (Cart::isEmpty()) {
+            return redirect()->route('cart')
+                ->with('error', 'Your cart is empty.');
+        }
+
+        seo()->title('Checkout');
+
+        // Optimize by fetching all products at once
+        $productIds = Cart::getContent()->pluck('id');
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        $cartItemsWithDetails = Cart::getContent()->map(function ($item) use ($products) {
+            if ($product = $products->get($item->id)) {
                 return array_merge($item->toArray(), [
-                    'image_url' => $product->getFirstMediaUrl('image', 'thumb'),
+                    'image_url' => $product->image,
                     'measurement' => $product->measurement,
                 ]);
             }
 
-            return $item;
-        })->filter(); // Remove null values
+            return null;
+        })->filter();
 
         return view('check-out', [
             'cartItems' => $cartItemsWithDetails,
-
             'subtotal' => Cart::getSubTotal(),
             'total' => Cart::getTotal(),
         ]);
     }
 
-    public function store(Request $request)
+    public function order(Request $request)
     {
+        if (Cart::isEmpty()) {
+            return back()->with('error', 'Your cart is empty.');
+        }
+
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
@@ -48,12 +61,15 @@ class CheckOutController extends Controller
         try {
             DB::beginTransaction();
 
-            // Validate cart items exist in products
-            foreach (Cart::getContent() as $cartItem) {
-                $product = Product::find($cartItem->id);
-                if (! $product) {
-                    throw new Exception('One or more products in your cart are no longer available.');
-                }
+            // Fetch all products at once to reduce database queries
+            $cartItems = Cart::getContent();
+            $productIds = $cartItems->pluck('id');
+            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+            // Validate all products exist
+            $missingProducts = $cartItems->filter(fn ($item) => ! $products->has($item->id));
+            if ($missingProducts->isNotEmpty()) {
+                throw new Exception('One or more products in your cart are no longer available.');
             }
 
             // Create order
@@ -62,29 +78,23 @@ class CheckOutController extends Controller
                 'customer_email' => $validated['customer_email'],
                 'customer_phone' => $validated['customer_phone'],
                 'customer_address' => $validated['customer_address'],
-                'customer_note' => $validated['customer_note'],
+                'customer_note' => $validated['customer_note'] ?? null,
                 'status' => OrderStatus::PENDING,
             ]);
 
-            // Generate order number after creating order
-            $order->generateOrderNumber();
-
             // Create order items
-            foreach (Cart::getContent() as $cartItem) {
-                $product = Product::find($cartItem->id);
-                if ($product) {
-                    $orderItem = $order->orderItems()->create([
-                        'product_id' => $product->id,
-                        'price' => $cartItem->price,
-                        'quantity' => $cartItem->quantity,
-                        'subtotal' => $cartItem->price * $cartItem->quantity,
-                    ]);
+            $orderItems = $cartItems->map(function ($cartItem) use ($products) {
+                $product = $products->get($cartItem->id);
 
-                    if (! $orderItem) {
-                        throw new Exception('Failed to create order item.');
-                    }
-                }
-            }
+                return [
+                    'product_id' => $product->id,
+                    'price' => $cartItem->price,
+                    'quantity' => $cartItem->quantity,
+                    'subtotal' => $cartItem->price * $cartItem->quantity,
+                ];
+            })->values()->toArray();
+
+            $order->orderItems()->createMany($orderItems);
 
             DB::commit();
 
@@ -94,8 +104,12 @@ class CheckOutController extends Controller
             return redirect()->route('orders.show', $order)
                 ->with('success', 'Order placed successfully!');
 
-        } catch (Exception) {
+        } catch (Exception $e) {
             DB::rollBack();
+            Log::error('Checkout Error: '.$e->getMessage(), [
+                'user_input' => $validated,
+                'cart_items' => Cart::getContent()->toArray(),
+            ]);
 
             return back()->with('error', 'There was an error processing your order. Please try again.');
         }

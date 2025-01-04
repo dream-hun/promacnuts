@@ -76,7 +76,7 @@ class CartComponent extends Component
         $cartItemsWithImages = $cartItems->map(function ($item) {
             $product = Product::find($item->id);
             if ($product) {
-                $imageUrl = $product->getFirstMediaUrl('image', 'thumb');
+                $imageUrl = $product->image;
 
                 return array_merge($item->toArray(), ['image_url' => $imageUrl]);
             }

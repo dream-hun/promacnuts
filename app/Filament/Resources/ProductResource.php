@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ProductStatus;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Forms;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,12 +24,12 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                SpatieMediaLibraryFileUpload::make('image')
-
-                    ->responsiveImages(),
-
+                Forms\Components\FileUpload::make('image')
+                    ->image(),
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\Textarea::make('description')
-
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('before_price')
@@ -39,14 +39,17 @@ class ProductResource extends Resource
                     ->required()
                     ->numeric()
                     ->prefix('RWF'),
+                Forms\Components\TextInput::make('measurement')
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('stock')
                     ->required()
                     ->numeric()
                     ->default(10),
-                Forms\Components\TextInput::make('status')
-
+                Forms\Components\Select::make('status')
+                    ->options(ProductStatus::class)
+                    ->native(false)
                     ->required()
-                    ->maxLength(255)
+
                     ->default('in-stock'),
             ]);
     }
@@ -59,15 +62,19 @@ class ProductResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('before_price')
-                    ->numeric()
+                ->label('Price Before')
+                    ->formatStateUsing(fn ($record) => $record->formattedPriceBefore())
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money('FRW')
+                    ->formatStateUsing(fn ($record) => $record->formattedPrice())
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('stock')
+                ->label('Available Stock')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->badge()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

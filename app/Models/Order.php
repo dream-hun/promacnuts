@@ -23,11 +23,19 @@ class Order extends Model
         'status',
     ];
 
-    public function generateOrderNumber($prefix = 'ORD-', $pad_string = '0', $length = 6): void
+    protected static function boot()
     {
-        $orderNumber = $prefix.str_pad($this->id, $pad_string, STR_PAD_LEFT);
-        $this->order_number = $orderNumber;
-        $this->save();
+        parent::boot();
+
+        // Generate order number before creating the order
+        static::creating(function ($order) {
+            // Get the last order id
+            $lastOrder = static::orderBy('id', 'desc')->first();
+            $nextId = $lastOrder ? $lastOrder->id + 1 : 1;
+
+            // Generate the order number
+            $order->order_number = 'ORD-'.str_pad($nextId, 6, '0', STR_PAD_LEFT);
+        });
     }
 
     public function products(): BelongsToMany

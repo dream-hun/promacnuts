@@ -7,10 +7,10 @@
                 <div class="h-56 overflow-hidden relative">
                     <a href="/shop/products/{{ $product->slug }}">
                         @if ($product->image)
-                            <img class="w-full h-full object-cover px-3" src="{{ $product->getFirstMediaUrl('image') }}"
+                            <img class="w-full h-full object-cover px-3" src="storage/{{ $product->image }}"
                                 alt="{{ $product->name }}" loading="lazy" />
                         @else
-                            <img class="w-full h-full object-contain p-8" src="{{ asset('images/No-image.png') }}"
+                            <img class="w-full h-full object-contain p-8" src="{{ asset('assets/no-image.webp') }}"
                                 alt="{{ $product->name }}" loading="lazy" />
                         @endif
                     </a>
