@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderItemsRelationManager;
 use App\Models\Order;
@@ -10,12 +11,17 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+
+    protected static ?string $navigationLabel = 'Orders';
+
+    protected static ?string $recordTitleAttribute = 'customer_name';
 
     public static function form(Form $form): Form
     {
@@ -40,9 +46,10 @@ class OrderResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('customer_note')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
+                    ->options(OrderStatus::class)
                     ->required()
-                    ->maxLength(255)
+
                     ->default('pending'),
             ]);
     }
@@ -101,6 +108,14 @@ class OrderResource extends Resource
             'create' => Pages\CreateOrder::route('/create'),
             'view' => Pages\ViewOrder::route('/{record}'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Email' => $record->customer_email,
+            'Mobile' => $record->customer_phone,
         ];
     }
 }

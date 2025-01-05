@@ -30,8 +30,8 @@ class OrderItemsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('product.name'),
                 TextColumn::make('quantity'),
-                TextColumn::make('price')->formatStateUsing(fn($record)=>$record->formattedPrice()),
-                TextColumn::make('subtotal')->formatStateUsing(fn($record)=>$record->formattedSubtotal()),
+                TextColumn::make('price')->formatStateUsing(fn ($record) => $record->formattedPrice()),
+                TextColumn::make('subtotal')->formatStateUsing(fn ($record) => $record->formattedSubtotal()),
 
             ])
             ->filters([
