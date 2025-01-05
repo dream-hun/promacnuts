@@ -53,9 +53,7 @@ class ShoppingComponent extends Component
     public function render(): View|Factory|Application
     {
 
-        $products = Product::with(['media']);
-
-        $products = $products->paginate(12);
+        $products = Product::paginate(12);
 
         // Add a 'inCart' property to each product
         $products->getCollection()->transform(function ($product) {

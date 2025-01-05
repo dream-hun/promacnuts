@@ -2,7 +2,11 @@
 
 namespace App\Enums;
 
-enum OrderStatus: string
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+
+enum OrderStatus: string implements HasColor, HasIcon, HasLabel
 {
     case PENDING = 'pending';
     case PROCESSING = 'processing';
@@ -12,7 +16,7 @@ enum OrderStatus: string
     case REFUNDED = 'refunded';
     case COMPLETED = 'completed';
 
-    public function label(): string
+    public function getLabel(): string
     {
         return match ($this) {
             OrderStatus::PENDING => 'Pending',
@@ -26,15 +30,27 @@ enum OrderStatus: string
         };
     }
 
-    public function color(): string
+    public function getColor(): string|array|null
     {
         return match ($this) {
-            OrderStatus::PENDING => 'indigo',
-            OrderStatus::PROCESSING => 'blue',
-            OrderStatus::SHIPPED, OrderStatus::REFUNDED => 'yellow',
-            OrderStatus::DELIVERED,OrderStatus::COMPLETED => 'green',
-            OrderStatus::CANCELLED => 'red',
+            self::PENDING => 'indigo',
+            self::PROCESSING => 'blue',
+            self::SHIPPED, self::REFUNDED => 'yellow',
+            self::DELIVERED,self::COMPLETED => 'green',
+            self::CANCELLED => 'red',
 
+        };
+
+    }
+
+    public function getIcon(): ?string
+    {
+        return match ($this) {
+            self::PENDING => 'heroicon-m-sparkles',
+            self::PROCESSING => 'heroicon-m-arrow-path',
+            self::Shipped => 'heroicon-m-truck',
+            self::SHIPPED => 'heroicon-m-check-badge',
+            self::CANCELLED => 'heroicon-m-x-circle',
         };
     }
 }
