@@ -62,7 +62,7 @@ class ProductResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('before_price')
-                ->label('Price Before')
+                    ->label('Price Before')
                     ->formatStateUsing(fn ($record) => $record->formattedPriceBefore())
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')
@@ -70,7 +70,7 @@ class ProductResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('stock')
-                ->label('Available Stock')
+                    ->label('Available Stock')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')

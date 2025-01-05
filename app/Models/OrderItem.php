@@ -34,7 +34,7 @@ class OrderItem extends Model
 
     public function formattedPrice(): Money
     {
-        return Money::RWF($this);
+        return Money::RWF($this->price);
     }
 
     public function formattedSubtotal(): Money
