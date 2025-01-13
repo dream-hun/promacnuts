@@ -101,9 +101,8 @@ class CheckOutController extends Controller
             // Clear cart after successful order
             Cart::clear();
 
-            return redirect()->route('orders.show', $order)
+            return redirect()->route('orders.show', ['order' => encrypt($order->id)])
                 ->with('success', 'Order placed successfully!');
-
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Checkout Error: '.$e->getMessage(), [
@@ -112,6 +111,21 @@ class CheckOutController extends Controller
             ]);
 
             return back()->with('error', 'There was an error processing your order. Please try again.');
+        }
+    }
+
+    public function show(Request $request, $order)
+    {
+        try {
+            $orderId = decrypt($order);
+            $order = Order::findOrFail($orderId);
+
+         
+
+
+            return view('orders.show', compact('order'));
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            abort(404, 'Invalid order link.');
         }
     }
 }

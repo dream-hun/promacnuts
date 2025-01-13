@@ -14,3 +14,4 @@ Route::get('/shopping-basket', CartComponent::class)->name('cart');
 
 Route::get('check-out', [CheckOutController::class, 'index'])->name('checkout');
 Route::post('confirm', [CheckOutController::class, 'order'])->name('checkout.store');
+Route::get('orders/{order}', [CheckOutController::class, 'show'])->name('orders.show');
