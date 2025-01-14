@@ -31,6 +31,7 @@ Enjoy the perfect balance of flavor and nutrition in every bite. Whether you're 
 Treat yourself to the taste of perfection—order now and experience the natural luxury of roasted macadamias!",
                 'before_price' => 0,
                 'price' => 20000,
+                'measurement' => 'kg',
                 'stock' => 10,
                 'status' => 'in-stock',
 
@@ -53,6 +54,7 @@ Enjoy the perfect balance of flavor and nutrition in every bite. Whether you're 
 Treat yourself to the taste of perfection—order now and experience the natural luxury of roasted macadamias!",
                 'before_price' => 0,
                 'price' => 11000,
+                'measurement' => 'g',
                 'stock' => 10,
                 'status' => 'out-of-stock',
             ],
@@ -74,6 +76,7 @@ Enjoy the perfect balance of flavor and nutrition in every bite. Whether you're 
 Treat yourself to the taste of perfection—order now and experience the natural luxury of roasted macadamias!",
                 'before_price' => 0,
                 'price' => 4500,
+                'measurement' => 'g',
                 'stock' => 10,
                 'status' => 'in-stock',
             ],

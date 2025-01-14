@@ -120,9 +120,6 @@ class CheckOutController extends Controller
             $orderId = decrypt($order);
             $order = Order::findOrFail($orderId);
 
-         
-
-
             return view('orders.show', compact('order'));
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
             abort(404, 'Invalid order link.');
